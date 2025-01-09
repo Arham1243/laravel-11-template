@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-
     public function signup()
     {
         return view('frontend.auth.signup')->with('title', 'Sign Up');
     }
+
     public function login()
     {
         return view('frontend.auth.login')->with('title', 'Login');
@@ -21,6 +21,8 @@ class AuthController extends Controller
 
     public function performSignup(Request $request)
     {
+        $redirectTo = $request->input('redirect_url');
+
         $validatedData = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -48,12 +50,16 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
+        if ($redirectTo) {
+            return redirect()->to($redirectTo)->with('notify_success', 'Account Created Successfully');
+        }
 
         return redirect()->route('user.dashboard')->with('notify_success', 'Account Created Successfully');
     }
 
     public function performLogin(Request $request)
     {
+        $redirectTo = $request->input('redirect_url');
 
         $request->validate([
             'email' => 'required|email',
@@ -61,19 +67,31 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            $user = Auth::user();
+
+            if ($user->status === 'inactive') {
+                Auth::logout();
+
+                return redirect()->route('auth.login')
+                    ->withErrors(['email' => 'Your account is suspended. Please contact the admin.'])
+                    ->with('notify_error', 'Your account is suspended. Please contact the admin.');
+            }
+
+            if ($redirectTo) {
+                return redirect()->to($redirectTo)->with('notify_success', 'Login Successfully');
+            }
+
             return redirect()->intended(route('user.dashboard'))
-                ->with('notify_success', 'Login Successful');
+                ->with('notify_success', 'Login Successfully');
         }
 
         return back()->withErrors(['email' => 'Invalid credentials'])->withInput()->with('notify_error', 'Invalid credentials');
     }
 
-
-
     public function logout(Request $request)
     {
         Auth::logout();
 
-        return redirect()->route('index')->with('notify_success', 'Logged Out!');
+        return redirect()->route('frontend.index')->with('notify_success', 'Logged Out!');
     }
 }

@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\DiagnosticCase;
+use App\Models\ImageType;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
@@ -17,23 +18,38 @@ class BulkActionController extends Controller
             return Redirect::back()->with('notify_error', 'No items selected for the bulk action.');
         }
         switch ($resource) {
-            case 'blogs':
+            case 'user-cases':
+                $modelClass = DiagnosticCase::class;
+                $column = 'id';
+                $redirectRoute = 'user.cases.index';
+                break;
+            case 'admin-cases':
                 $modelClass = DiagnosticCase::class;
                 $column = 'id';
                 $redirectRoute = 'admin.cases.index';
+                break;
+            case 'users':
+                $modelClass = User::class;
+                $column = 'id';
+                $redirectRoute = 'admin.users.index';
+                break;
+            case 'image-types':
+                $modelClass = ImageType::class;
+                $column = 'id';
+                $redirectRoute = 'admin.image-types.index';
                 break;
             default:
                 return Redirect::back()->with('notify_error', 'Resource not found.');
         }
 
-        return $this->handleBulkActions($modelClass, $column, $action, $selectedIds, $redirectRoute);
+        return $this->handleBulkActions($modelClass, $column, $action, $selectedIds, $redirectRoute, $resource);
     }
 
-    protected function handleBulkActions($modelClass, $idColumn, $action, $selectedIds, $redirectRoute)
+    protected function handleBulkActions($modelClass, $idColumn, $action, $selectedIds, $redirectRoute, $resource)
     {
         switch ($action) {
             case 'delete':
-                $modelClass::whereIn($idColumn, $selectedIds)->each(function ($model) use ($modelClass) {
+                $modelClass::whereIn($idColumn, $selectedIds)->each(function ($model) {
                     $model->delete();
                 });
                 break;
@@ -55,7 +71,7 @@ class BulkActionController extends Controller
                 $modelClass::whereIn($idColumn, $selectedIds)->update(['status' => 'inactive']);
                 break;
             case 'permanent_delete':
-                $modelClass::onlyTrashed()->whereIn($idColumn, $selectedIds)->each(function ($model) use ($modelClass) {
+                $modelClass::onlyTrashed()->whereIn($idColumn, $selectedIds)->each(function ($model) {
                     $model->forceDelete();
                 });
                 break;

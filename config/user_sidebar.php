@@ -2,33 +2,23 @@
 
 return [
     [
-        'title' => 'Website',
-        'icon' => 'bx bx-globe',
-        'route' => 'index',
-    ],
-    [
         'title' => 'Dashboard',
         'icon' => 'bx bxs-home',
         'route' => 'user.dashboard',
     ],
     [
-        'title' => 'Cases',
-        'icon' => 'bx bx-search-alt',
+        'title' => 'Profile Settings',
+        'icon' => 'bx bxs-cog',
         'submenu' => [
             [
-                'title' => 'Cases',
-                'icon' => 'bx bx-list-ul',
-                'route' => 'user.cases.index',
+                'title' => 'Personal Information',
+                'icon' => 'bx bxs-contact',
+                'route' => 'user.profile.index',
             ],
             [
-                'title' => 'Add Case',
-                'icon' => 'bx bx-plus',
-                'route' => 'user.cases.create',
-            ],
-            [
-                'title' => 'Recovery',
-                'icon' => 'bx bx-refresh',
-                'route' => ['user.recovery.index', ['resource' => 'cases']],
+                'title' => 'Change Password',
+                'icon' => 'bx bx-key',
+                'route' => 'user.profile.changePassword',
             ],
         ],
     ],

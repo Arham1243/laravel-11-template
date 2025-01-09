@@ -2,9 +2,13 @@
 
 use App\Http\Controllers\Admin\AdminDashController;
 use App\Http\Controllers\Admin\AdminLoginController;
-use App\Http\Controllers\BulkActionController;
+use App\Http\Controllers\Admin\AnalyticsController;
+use App\Http\Controllers\Admin\DiagnosticCaseController;
+use App\Http\Controllers\Admin\ImageTypeController;
 use App\Http\Controllers\Admin\RecoveryController;
 use App\Http\Controllers\Admin\SiteSettingsController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\BulkActionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/admins', function () {
@@ -13,7 +17,7 @@ Route::get('/admins', function () {
 
 Route::middleware('guest')->prefix('admin')->namespace('Admin')->group(function () {
     Route::get('/auth', [AdminLoginController::class, 'login'])->name('admin.login');
-    Route::post('/perform-login', [AdminLoginController::class, 'performLogin'])->name('admin.login.perform')->middleware('throttle:5,1');
+    Route::post('/perform-login', [AdminLoginController::class, 'performLogin'])->name('admin.performLogin')->middleware('throttle:5,1');
 });
 
 Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
@@ -25,4 +29,6 @@ Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/logout', [AdminLoginController::class, 'logout'])->name('logout');
     Route::post('bulk-actions/{resource}', [BulkActionController::class, 'handle'])->name('bulk-actions');
     Route::get('recovery/{resource}', [RecoveryController::class, 'index'])->name('recovery.index');
+
+    Route::resource('image-types', ImageTypeController::class);
 });

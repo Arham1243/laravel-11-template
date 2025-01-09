@@ -47,19 +47,38 @@ if (! function_exists('formatDate')) {
     }
 }
 
-if (! function_exists('renderCategories')) {
-    function renderCategories($categories, $selectedCategory = null, $parent_id = null, $level = 0)
+if (! function_exists('format_type')) {
+    function format_type($string)
     {
-        foreach ($categories as $category) {
-            if ($category->parent_category_id == $parent_id) {
-                $selected = (old('category_id', $selectedCategory) == $category->id) ? 'selected' : '';
+        return ucwords(str_replace('_', ' ', $string));
+    }
+}
+if (! function_exists('getRelativeType')) {
+    function getRelativeType(string $type): string
+    {
+        $typeMapping = [
+            'share_image_diagnosis' => 'Share Case',
+            'challenge_image_diagnosis' => 'Challenge Case',
+            'ask_image_diagnosis' => 'Help Case',
+            'ask_ai_image_diagnosis' => 'AI Case',
+        ];
 
-                echo '<option value="'.$category->id.'" '.$selected.'>';
-                echo str_repeat('&nbsp;&nbsp;', $level).str_repeat('-', $level).' '.$category->name;
-                echo '</option>';
-
-                renderCategories($categories, $selectedCategory, $category->id, $level + 1);
-            }
+        return $typeMapping[$type] ?? 'Unknown Type';
+    }
+}
+if (! function_exists('formatBigNumber')) {
+    function formatBigNumber($num)
+    {
+        if ($num >= 1_000_000_000) {
+            return rtrim(number_format($num / 1_000_000_000, 1, '.', '0'), '.0').'B';
         }
+        if ($num >= 1_000_000) {
+            return rtrim(number_format($num / 1_000_000, 1, '.', '0'), '.0').'M';
+        }
+        if ($num >= 1_000) {
+            return rtrim(number_format($num / 1_000, 1, '.', '0'), '.0').'K';
+        }
+
+        return (string) $num;
     }
 }
